@@ -1,3 +1,7 @@
+#credentials
+google-services.json
+.DS_Store
+
 # Miscellaneous
 *.class
 *.lock
