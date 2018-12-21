@@ -1,4 +1,4 @@
-package com.example.app;
+package com.elvisun.swagdistributor;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
