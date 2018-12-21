@@ -3,6 +3,7 @@ import 'home.dart';
 import 'create_event.dart';
 import 'list_events.dart';
 import 'models/routes.dart' as routes;
+import 'event_detail.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
       ),
       home: Home(title: 'Home'),
       routes: <String, WidgetBuilder>{
+        routes.eventDetail: (BuildContext context) => EventDetail(),
         routes.createEvent: (BuildContext context) => CreateEventWidget(),
         routes.listEvents: (BuildContext context) => ListEventWidget(),
       },
