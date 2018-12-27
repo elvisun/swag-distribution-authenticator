@@ -10,10 +10,23 @@ class EventDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void goToCollectionView() =>
+        Navigator.of(context).pushNamed(routes.home);
+
     return Scaffold(
         appBar: AppBar(
           title: Text(document.data['name']),
         ),
-        body: Text(document.data['description']));
+        body: Center(
+          child: RaisedButton(
+            elevation: 4.0,
+            padding: const EdgeInsets.all(8.0),
+            textColor: Colors.white,
+            color: Colors.pink,
+            splashColor: Colors.pinkAccent,
+            onPressed: goToCollectionView,
+            child: const Text('Start session now'),
+          ),
+        ));
   }
 }

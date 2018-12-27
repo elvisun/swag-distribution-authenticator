@@ -1,14 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'home.dart';
 import 'create_event.dart';
 import 'list_events.dart';
 import 'models/routes.dart' as routes;
 import 'event_detail.dart';
+//import 'collection_view.dart';
+import 'package:camera/camera.dart';
 
-void main() => runApp(MyApp());
+List<CameraDescription> cameras;
+
+Future<void> main() async {
+  cameras = await availableCameras();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,6 +29,7 @@ class MyApp extends StatelessWidget {
         routes.eventDetail: (BuildContext context) => EventDetail(),
         routes.createEvent: (BuildContext context) => CreateEventWidget(),
         routes.listEvents: (BuildContext context) => ListEventWidget(),
+//        routes.collection: (BuildContext context) => CollectionView(cameras),
       },
     );
   }
