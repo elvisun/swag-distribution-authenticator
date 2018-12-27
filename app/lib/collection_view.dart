@@ -9,6 +9,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path_util;
 import 'package:path_provider/path_provider.dart';
+import 'package:quiver/time.dart';
+import 'package:mlkit/mlkit.dart';
+
+const preprocessedFolderName = 'preprocessed';
 
 class CollectionView extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -20,8 +24,10 @@ class CollectionView extends StatefulWidget {
 }
 
 class _CollectionViewState extends State<CollectionView> {
+  final _clock = Clock();
   CameraController controller;
   Directory _localDirectory;
+  String _preprocessDirectoryPath;
 
   @override
   void initState() {
@@ -31,6 +37,7 @@ class _CollectionViewState extends State<CollectionView> {
     getApplicationDocumentsDirectory().then((dir) {
       setState(() {
         _localDirectory = dir;
+        _preprocessDirectoryPath = path_util.join(_localDirectory.path, preprocessedFolderName);
       });
     });
   }
@@ -51,8 +58,21 @@ class _CollectionViewState extends State<CollectionView> {
     super.dispose();
   }
 
-  void screenshot() {
-    controller.takePicture(path_util.join(_localDirectory.path, 'test.jpg'));
+  Future<void> screenshot() async {
+    var newPath = path_util.join(
+        _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
+    await controller.takePicture(newPath);
+    List<VisionFace> faces = await FirebaseVisionFaceDetector.instance.detectFromPath(listAllPictures().last);
+    print(faces);
+    setState(() {});
+  }
+
+  List<String> listAllPictures() {
+    return _localDirectory
+        .listSync()
+        .where((f) => path_util.extension(f.path).contains('jpg'))
+        .map((f) => f.path)
+        .toList();
   }
 
   @override
@@ -64,8 +84,8 @@ class _CollectionViewState extends State<CollectionView> {
       body: Column(
         children: <Widget>[
           Container(
-            width: 250,
-            height: 300,
+            width: 50,
+            height: 80,
             child: AspectRatio(
               aspectRatio: controller.value.aspectRatio,
               child: CameraPreview(controller),
@@ -76,8 +96,18 @@ class _CollectionViewState extends State<CollectionView> {
             iconSize: 30.0,
             icon: Icon(Icons.camera_alt),
           ),
-          Text('hellow'),
-          Image.file(File(path_util.join(_localDirectory.path, 'test.jpg'))),
+          Text(
+            _localDirectory.path,
+            style: TextStyle(color: Colors.pink),
+          ),
+          Text(listAllPictures().length.toString(),
+              style: TextStyle(color: Colors.blue)),
+          Text(listAllPictures().first, style: TextStyle(color: Colors.green)),
+          Container(
+            width: double.infinity,
+            height: 400,
+            child: Image.file(File(listAllPictures().last)),
+          )
         ],
       ),
     );
