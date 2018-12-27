@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path_util;
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/time.dart';
 import 'package:mlkit/mlkit.dart';
+import 'package:image/image.dart' as img_util;
 
 const preprocessedFolderName = 'preprocessed';
 
@@ -28,6 +29,8 @@ class _CollectionViewState extends State<CollectionView> {
   CameraController controller;
   Directory _localDirectory;
   String _preprocessDirectoryPath;
+  Rect _faceBoundary;
+  File _lastCroppedImg;
 
   @override
   void initState() {
@@ -37,9 +40,18 @@ class _CollectionViewState extends State<CollectionView> {
     getApplicationDocumentsDirectory().then((dir) {
       setState(() {
         _localDirectory = dir;
-        _preprocessDirectoryPath = path_util.join(_localDirectory.path, preprocessedFolderName);
+        _preprocessDirectoryPath =
+            path_util.join(_localDirectory.path, preprocessedFolderName);
+        _initializePreprocessDirectory(_preprocessDirectoryPath);
       });
     });
+  }
+
+  void _initializePreprocessDirectory(String path) {
+    if (Directory(path).existsSync()) {
+      return;
+    }
+    Directory(path).createSync();
   }
 
   void _initCamera() {
@@ -58,12 +70,41 @@ class _CollectionViewState extends State<CollectionView> {
     super.dispose();
   }
 
+  File cropImage(File f) {
+    var basename = path_util.basename(f.path);
+    img_util.Image img = img_util.decodeImage(f.readAsBytesSync());
+//    img = img_util.copyCrop(
+//        img,
+//        _faceBoundary.topLeft.dx.round(),
+//        _faceBoundary.topLeft.dy.round(),
+//        _faceBoundary.bottomRight.dx.round(),
+//        _faceBoundary.bottomRight.dy.round());
+    print(_faceBoundary);
+    img = img_util.copyCrop(
+        img,
+        _faceBoundary.left.round(),
+        _faceBoundary.top.round(),
+        (_faceBoundary.right - _faceBoundary.left).round(),
+        (_faceBoundary.bottom - _faceBoundary.top).round());
+    var path = path_util.join(_localDirectory.path, basename);
+    var processedFile = File(path);
+    processedFile.writeAsBytesSync(img_util.encodeJpg(img));
+    return processedFile;
+  }
+
   Future<void> screenshot() async {
     var newPath = path_util.join(
         _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
     await controller.takePicture(newPath);
-    List<VisionFace> faces = await FirebaseVisionFaceDetector.instance.detectFromPath(listAllPictures().last);
-    print(faces);
+    List<VisionFace> faces = await FirebaseVisionFaceDetector.instance
+        .detectFromPath(listAllPictures().last);
+    if (faces.isEmpty) {
+      print('NO FACES FOUND!');
+    } else {
+      print('FOUND ${faces.length} FACES!');
+      _faceBoundary = faces.first.rect;
+      _lastCroppedImg = cropImage(File(newPath));
+    }
     setState(() {});
   }
 
@@ -103,13 +144,17 @@ class _CollectionViewState extends State<CollectionView> {
           Text(listAllPictures().length.toString(),
               style: TextStyle(color: Colors.blue)),
           Text(listAllPictures().first, style: TextStyle(color: Colors.green)),
-          Container(
-            width: double.infinity,
-            height: 400,
-            child: Image.file(File(listAllPictures().last)),
-          )
+          getContainer(),
         ],
       ),
+    );
+  }
+
+  Container getContainer() {
+    if (_lastCroppedImg == null) return Container();
+
+    return Container(
+      child: Image.file(_lastCroppedImg, fit: BoxFit.contain),
     );
   }
 }
