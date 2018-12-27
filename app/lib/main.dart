@@ -6,7 +6,7 @@ import 'create_event.dart';
 import 'list_events.dart';
 import 'models/routes.dart' as routes;
 import 'event_detail.dart';
-//import 'collection_view.dart';
+import 'collection_view.dart';
 import 'package:camera/camera.dart';
 
 List<CameraDescription> cameras;
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         routes.eventDetail: (BuildContext context) => EventDetail(),
         routes.createEvent: (BuildContext context) => CreateEventWidget(),
         routes.listEvents: (BuildContext context) => ListEventWidget(),
-//        routes.collection: (BuildContext context) => CollectionView(cameras),
+        routes.collection: (BuildContext context) => CollectionView(cameras),
       },
     );
   }

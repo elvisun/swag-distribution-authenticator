@@ -11,7 +11,7 @@ class EventDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void goToCollectionView() =>
-        Navigator.of(context).pushNamed(routes.home);
+        Navigator.of(context).pushNamed(routes.collection);
 
     return Scaffold(
         appBar: AppBar(
