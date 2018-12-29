@@ -13,6 +13,7 @@ google-services.json
 .buildlog/
 .history
 .svn/
+node_modules/
 
 # IntelliJ related
 *.iml
