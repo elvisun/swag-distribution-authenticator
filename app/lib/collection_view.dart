@@ -11,8 +11,9 @@ import 'package:path/path.dart' as path_util;
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/time.dart';
 import 'package:mlkit/mlkit.dart';
-import 'package:image/image.dart' as img_util;
+import 'package:image/image.dart' as img;
 import 'dart:math';
+import 'dart:typed_data';
 
 const preprocessedFolderName = 'preprocessed';
 
@@ -73,20 +74,20 @@ class _CollectionViewState extends State<CollectionView> {
 
   File cropImage(File f, Rect faceBoundary) {
     var basename = path_util.basename(f.path);
-    img_util.Image img = img_util.decodeImage(f.readAsBytesSync()).clone();
+    img.Image image = img.decodeImage(f.readAsBytesSync()).clone();
 
-    // The [img_util.copyCrop] method starts from the bottom left of the img,
+    // The [img.copyCrop] method starts from the bottom left of the img,
     // also takes the width as height and height as width.
     // So we need this weird transformation math.
-    var newImg = img_util.copyCrop(
-        img,
-        img.width - faceBoundary.bottom.round(),
+    var newImg = img.copyCrop(
+        image,
+        image.width - faceBoundary.bottom.round(),
         faceBoundary.left.round(),
         faceBoundary.height.round(),
         faceBoundary.width.round());
     var path = path_util.join(_preprocessDirectoryPath, basename);
     var processedFile = File(path);
-    processedFile.writeAsBytesSync(img_util.encodeJpg(newImg));
+    processedFile.writeAsBytesSync(img.encodeJpg(newImg));
     return processedFile;
   }
 
@@ -139,12 +140,32 @@ class _CollectionViewState extends State<CollectionView> {
           Text(listAllPictures().length.toString(),
               style: TextStyle(color: Colors.blue)),
           getContainer(),
-          getOriginalContainer(),
-          Text('hello',
-              style: TextStyle(color: Colors.green)),
+          getEmbeddingWidget(),
         ],
       ),
     );
+  }
+
+  Widget getEmbeddingWidget() {
+    if (_lastCroppedImg == null) return Container();
+    return FutureBuilder(
+        future: getImageEmbedding(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Text('No data');
+            case ConnectionState.active:
+            case ConnectionState.waiting:
+              return Text('Awaiting result...');
+            case ConnectionState.done:
+              if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+              return Text('Result: ${snapshot.data}');
+          }
+        });
+  }
+
+  Future<String> getImageEmbedding() async {
+    return (await convertToVector(_lastCroppedImg)).toString();
   }
 
   Container getContainer() {
@@ -156,14 +177,39 @@ class _CollectionViewState extends State<CollectionView> {
       child: Image.file(_lastCroppedImg, fit: BoxFit.scaleDown),
     );
   }
+}
 
-  Container getOriginalContainer() {
-    if (_lastImg == null) return Container();
-    return Container(
-      color: Colors.grey,
-      height: 200,
-      width: 200,
-      child: Image.file(_lastImg, fit: BoxFit.scaleDown),
-    );
+const _size = 128;
+
+Future<List<int>> convertToVector(File f) async {
+  FirebaseModelInterpreter interpreter = FirebaseModelInterpreter.instance;
+
+  img.Image image = img.decodeJpg(f.readAsBytesSync());
+  image = img.copyResize(image, _size, _size);
+  var results = await interpreter.run(
+      "embeddings",
+      FirebaseModelInputOutputOptions(0, FirebaseModelDataType.BYTE,
+          [1, _size, _size, 3], 0, FirebaseModelDataType.BYTE, [1, 128]),
+      imageToByteList(image));
+  return results;
+}
+
+// int model
+Uint8List imageToByteList(img.Image image) {
+  var _inputSize = _size;
+  var convertedBytes = Uint8List(1 * _inputSize * _inputSize * 3);
+  var buffer = ByteData.view(convertedBytes.buffer);
+  int pixelIndex = 0;
+  for (var i = 0; i < _inputSize; i++) {
+    for (var j = 0; j < _inputSize; j++) {
+      var pixel = image.getPixel(i, j);
+      buffer.setUint8(pixelIndex, (pixel >> 16) & 0xFF);
+      pixelIndex++;
+      buffer.setUint8(pixelIndex, (pixel >> 8) & 0xFF);
+      pixelIndex++;
+      buffer.setUint8(pixelIndex, (pixel) & 0xFF);
+      pixelIndex++;
+    }
   }
+  return convertedBytes;
 }
