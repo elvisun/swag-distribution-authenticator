@@ -14,6 +14,7 @@ import 'package:mlkit/mlkit.dart';
 import 'package:image/image.dart' as img;
 import 'dart:math';
 import 'dart:typed_data';
+import 'models/calculate_embedding.dart';
 
 const preprocessedFolderName = 'preprocessed';
 
@@ -179,37 +180,4 @@ class _CollectionViewState extends State<CollectionView> {
   }
 }
 
-const _size = 128;
 
-Future<List<int>> convertToVector(File f) async {
-  FirebaseModelInterpreter interpreter = FirebaseModelInterpreter.instance;
-
-  img.Image image = img.decodeJpg(f.readAsBytesSync());
-  image = img.copyResize(image, _size, _size);
-  var results = await interpreter.run(
-      "embeddings",
-      FirebaseModelInputOutputOptions(0, FirebaseModelDataType.BYTE,
-          [1, _size, _size, 3], 0, FirebaseModelDataType.BYTE, [1, 128]),
-      imageToByteList(image));
-  return results;
-}
-
-// int model
-Uint8List imageToByteList(img.Image image) {
-  var _inputSize = _size;
-  var convertedBytes = Uint8List(1 * _inputSize * _inputSize * 3);
-  var buffer = ByteData.view(convertedBytes.buffer);
-  int pixelIndex = 0;
-  for (var i = 0; i < _inputSize; i++) {
-    for (var j = 0; j < _inputSize; j++) {
-      var pixel = image.getPixel(i, j);
-      buffer.setUint8(pixelIndex, (pixel >> 16) & 0xFF);
-      pixelIndex++;
-      buffer.setUint8(pixelIndex, (pixel >> 8) & 0xFF);
-      pixelIndex++;
-      buffer.setUint8(pixelIndex, (pixel) & 0xFF);
-      pixelIndex++;
-    }
-  }
-  return convertedBytes;
-}
