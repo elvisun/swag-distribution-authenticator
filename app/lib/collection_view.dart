@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/time.dart';
 import 'package:mlkit/mlkit.dart';
 import 'package:image/image.dart' as img_util;
+import 'dart:math';
 
 const preprocessedFolderName = 'preprocessed';
 
@@ -29,8 +30,8 @@ class _CollectionViewState extends State<CollectionView> {
   CameraController controller;
   Directory _localDirectory;
   String _preprocessDirectoryPath;
-  Rect _faceBoundary;
   File _lastCroppedImg;
+  File _lastImg;
 
   @override
   void initState() {
@@ -70,25 +71,22 @@ class _CollectionViewState extends State<CollectionView> {
     super.dispose();
   }
 
-  File cropImage(File f) {
+  File cropImage(File f, Rect faceBoundary) {
     var basename = path_util.basename(f.path);
-    img_util.Image img = img_util.decodeImage(f.readAsBytesSync());
-//    img = img_util.copyCrop(
-//        img,
-//        _faceBoundary.topLeft.dx.round(),
-//        _faceBoundary.topLeft.dy.round(),
-//        _faceBoundary.bottomRight.dx.round(),
-//        _faceBoundary.bottomRight.dy.round());
-    print(_faceBoundary);
-    img = img_util.copyCrop(
+    img_util.Image img = img_util.decodeImage(f.readAsBytesSync()).clone();
+
+    // The [img_util.copyCrop] method starts from the bottom left of the img,
+    // also takes the width as height and height as width.
+    // So we need this weird transformation math.
+    var newImg = img_util.copyCrop(
         img,
-        _faceBoundary.left.round(),
-        _faceBoundary.top.round(),
-        (_faceBoundary.right - _faceBoundary.left).round(),
-        (_faceBoundary.bottom - _faceBoundary.top).round());
-    var path = path_util.join(_localDirectory.path, basename);
+        img.width - faceBoundary.bottom.round(),
+        faceBoundary.left.round(),
+        faceBoundary.height.round(),
+        faceBoundary.width.round());
+    var path = path_util.join(_preprocessDirectoryPath, basename);
     var processedFile = File(path);
-    processedFile.writeAsBytesSync(img_util.encodeJpg(img));
+    processedFile.writeAsBytesSync(img_util.encodeJpg(newImg));
     return processedFile;
   }
 
@@ -96,14 +94,15 @@ class _CollectionViewState extends State<CollectionView> {
     var newPath = path_util.join(
         _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
     await controller.takePicture(newPath);
-    List<VisionFace> faces = await FirebaseVisionFaceDetector.instance
-        .detectFromPath(listAllPictures().last);
+    List<VisionFace> faces =
+        await FirebaseVisionFaceDetector.instance.detectFromPath(newPath);
+    _lastImg = File(newPath);
+    print(newPath);
     if (faces.isEmpty) {
       print('NO FACES FOUND!');
     } else {
       print('FOUND ${faces.length} FACES!');
-      _faceBoundary = faces.first.rect;
-      _lastCroppedImg = cropImage(File(newPath));
+      _lastCroppedImg = cropImage(File(newPath), faces.first.rect);
     }
     setState(() {});
   }
@@ -137,14 +136,12 @@ class _CollectionViewState extends State<CollectionView> {
             iconSize: 30.0,
             icon: Icon(Icons.camera_alt),
           ),
-          Text(
-            _localDirectory.path,
-            style: TextStyle(color: Colors.pink),
-          ),
           Text(listAllPictures().length.toString(),
               style: TextStyle(color: Colors.blue)),
-          Text(listAllPictures().first, style: TextStyle(color: Colors.green)),
           getContainer(),
+          getOriginalContainer(),
+          Text('hello',
+              style: TextStyle(color: Colors.green)),
         ],
       ),
     );
@@ -152,9 +149,21 @@ class _CollectionViewState extends State<CollectionView> {
 
   Container getContainer() {
     if (_lastCroppedImg == null) return Container();
-
     return Container(
-      child: Image.file(_lastCroppedImg, fit: BoxFit.contain),
+      color: Colors.grey,
+      height: 200,
+      width: 200,
+      child: Image.file(_lastCroppedImg, fit: BoxFit.scaleDown),
+    );
+  }
+
+  Container getOriginalContainer() {
+    if (_lastImg == null) return Container();
+    return Container(
+      color: Colors.grey,
+      height: 200,
+      width: 200,
+      child: Image.file(_lastImg, fit: BoxFit.scaleDown),
     );
   }
 }
