@@ -12,8 +12,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quiver/time.dart';
 import 'package:mlkit/mlkit.dart';
 import 'package:image/image.dart' as img;
-import 'dart:math';
-import 'dart:typed_data';
 import 'models/calculate_embedding.dart';
 
 const preprocessedFolderName = 'preprocessed';
