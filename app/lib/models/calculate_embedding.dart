@@ -18,6 +18,10 @@ const _vectorCollectionName = 'face_vectors';
 Future<List<int>> convertToVector(File f, {bool saveToDb = true}) async {
   FirebaseModelInterpreter interpreter = FirebaseModelInterpreter.instance;
 
+  //TODO: run this only once
+  FirebaseModelManager.instance.registerCloudModelSource(
+      FirebaseCloudModelSource(modelName: "embeddings"));
+
   img.Image image = img.decodeJpg(f.readAsBytesSync());
   image = img.copyResize(image, _inputSize, _inputSize);
   var results = await interpreter.run(

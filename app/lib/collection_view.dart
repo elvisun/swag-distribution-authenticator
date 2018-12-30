@@ -13,6 +13,7 @@ import 'package:quiver/time.dart';
 import 'package:mlkit/mlkit.dart';
 import 'package:image/image.dart' as img;
 import 'models/calculate_embedding.dart';
+import 'services/functions.dart';
 
 const preprocessedFolderName = 'preprocessed';
 
@@ -121,11 +122,13 @@ class _CollectionViewState extends State<CollectionView> {
       return Container();
     }
     return Scaffold(
-      body: Column(
+      appBar: AppBar(
+        title: Text('Take a picture'),
+      ),
+      body: Center(child:Column(
         children: <Widget>[
           Container(
-            width: 50,
-            height: 80,
+            width: 200,
             child: AspectRatio(
               aspectRatio: controller.value.aspectRatio,
               child: CameraPreview(controller),
@@ -142,13 +145,13 @@ class _CollectionViewState extends State<CollectionView> {
           getEmbeddingWidget(),
         ],
       ),
-    );
+    ),);
   }
 
   Widget getEmbeddingWidget() {
     if (_lastCroppedImg == null) return Container();
     return FutureBuilder(
-        future: getImageEmbedding(),
+        future: getImageEmbeddingDistance(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
@@ -163,8 +166,11 @@ class _CollectionViewState extends State<CollectionView> {
         });
   }
 
-  Future<String> getImageEmbedding() async {
-    return (await convertToVector(_lastCroppedImg)).toString();
+  Future<String> getImageEmbeddingDistance() async {
+    var vector = await convertToVector(_lastCroppedImg);
+    print('converted vector: $vector');
+    var distance = await getClosestDistance(vector);
+    return distance.toString();
   }
 
   Container getContainer() {
