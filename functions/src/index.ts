@@ -1,11 +1,10 @@
 import * as functions from 'firebase-functions';
-
+import * as _ from 'lodash';
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
 //
 export const helloWorld = functions.https.onCall((data, context) => {
- return {
- 	message: "Hello from Firebase!"
- };
+	console.log(data);
+	return data;
 });
 

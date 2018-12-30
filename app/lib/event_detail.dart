@@ -46,6 +46,11 @@ class EventDetail extends StatelessWidget {
 }
 
 Future<void> callFunction() async {
-  var res = await CloudFunctions.instance.call(functionName: 'helloWorld');
+  var res = await CloudFunctions.instance.call(functionName: 'helloWorld',
+    parameters: {
+      'data': '11',
+      'data2': '22',
+    }
+  );
   print(res);
 }
