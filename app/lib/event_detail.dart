@@ -41,7 +41,8 @@ class EventDetail extends StatelessWidget {
               ),
             ],
           ),
-        ));
+        ),
+    );
   }
 }
 

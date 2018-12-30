@@ -1,0 +1,28 @@
+[debug] [2018-12-30T01:55:57.826Z] ----------------------------------------------------------------------
+[debug] [2018-12-30T01:55:57.828Z] Command:       /usr/local/bin/node /usr/local/bin/firebase serve --only functions
+[debug] [2018-12-30T01:55:57.828Z] CLI Version:   6.2.2
+[debug] [2018-12-30T01:55:57.828Z] Platform:      darwin
+[debug] [2018-12-30T01:55:57.828Z] Node Version:  v10.15.0
+[debug] [2018-12-30T01:55:57.829Z] Time:          Sat Dec 29 2018 20:55:57 GMT-0500 (Eastern Standard Time)
+[debug] [2018-12-30T01:55:57.829Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-12-30T01:55:57.839Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-12-30T01:55:57.839Z] > authorizing via signed-in user
+[debug] [2018-12-30T01:55:57.840Z] [iam] checking project swag-distributor for permissions ["firebase.projects.get"]
+[debug] [2018-12-30T01:55:57.841Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor:testIamPermissions  
+
+[debug] [2018-12-30T01:55:58.182Z] <<< HTTP RESPONSE 200
+[debug] [2018-12-30T01:55:58.183Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor  
+ 
+[debug] [2018-12-30T01:55:58.469Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/lihes/Documents/github/authenticator/swag-distribution-authenticator'...
+[info] 
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-12-30T01:55:59.092Z] Fetching environment
+[debug] [2018-12-30T01:55:59.094Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/783250245080:getServerAppConfig  
+ 
+[debug] [2018-12-30T01:55:59.315Z] <<< HTTP RESPONSE 200
+[debug] [2018-12-30T01:55:59.316Z] Starting @google-cloud/functions-emulator
+[debug] [2018-12-30T01:56:00.388Z] Parsing function triggers
+[info] ✔  functions: helloWorld: http://localhost:5000/swag-distributor/us-central1/helloWorld
