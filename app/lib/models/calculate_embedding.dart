@@ -22,8 +22,13 @@ Future<List<int>> convertToVector(File f, {bool saveToDb = true}) async {
   image = img.copyResize(image, _inputSize, _inputSize);
   var results = await interpreter.run(
       "embeddings",
-      FirebaseModelInputOutputOptions(0, FirebaseModelDataType.BYTE,
-          [1, _inputSize, _inputSize, 3], 0, FirebaseModelDataType.BYTE, [1, 128]),
+      FirebaseModelInputOutputOptions(
+          0,
+          FirebaseModelDataType.BYTE,
+          [1, _inputSize, _inputSize, 3],
+          0,
+          FirebaseModelDataType.BYTE,
+          [1, 128]),
       _imageToByteList(image));
   if (saveToDb) {
     Firestore.instance.collection(_vectorCollectionName).add({

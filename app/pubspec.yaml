@@ -17,6 +17,7 @@ dependencies:
   camera:
   mlkit:
   cloud_firestore:
+  cloud_functions:
   path_provider:
   flutter:
     sdk: flutter

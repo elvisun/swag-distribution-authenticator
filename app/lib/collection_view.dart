@@ -177,5 +177,3 @@ class _CollectionViewState extends State<CollectionView> {
     );
   }
 }
-
-
