@@ -1,17 +1,18 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'dart:math';
 
-Future<int> getClosestDistance(List<int> array) async {
+Future<String> getMaxSimilarity(List<int> array) async {
   if (array.length != 128) {
     throw ArgumentError('vector dimension needs to be 128');
   }
 
   var res = await CloudFunctions.instance
       .call(functionName: 'calculateFaceSimilarity', parameters: {
-//        'vector': array
     'vector': List.of(array),
   });
   print(res);
-  return res['distance'];
+  double similarity = res['similarity'];
+  return similarity.toString();
 }
 
 const testData = [

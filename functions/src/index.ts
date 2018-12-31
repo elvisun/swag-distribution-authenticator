@@ -13,6 +13,10 @@ function calculateMagnitude(array: number[]) {
 	return math.sqrt(sum);
 }
 
+function scaleUpSimilarity(similarity) {
+	return math.max(0, similarity - 0.99) * 100;
+}
+
 export const calculateFaceSimilarity = functions.https.onCall((data, context) => {
 	if (data.vector === null || data.vector.length !== 128) {
 		throw new Error('Input vector must be of length 128');
@@ -22,16 +26,41 @@ export const calculateFaceSimilarity = functions.https.onCall((data, context) =>
 	return admin.firestore().collection('face_vectors').select('vector').get().then(function(res) {
 			if (res.docs === null || res.docs.length === 0) {
 				return {
-					distance: 0.001  // Never seen this so similar to nothing
+					similarity: 0.001  // Never seen this so similar to nothing
 				}
 			}
 			const currentVectorMagnitude = calculateMagnitude(data.vector);
-			const smallestCosDistance = res.docs.map((doc) => doc.get('vector'))
+			const largestSimilarity = res.docs.map((doc) => doc.get('vector'))
 					.filter(vector => !_.isEqual(data.vector, vector))
 					.map((vector) => (math.dot(vector, data.vector))/(currentVectorMagnitude * calculateMagnitude(vector)))
+					.map(scaleUpSimilarity)
 					.reduce((a, b) => math.max(a, b));
 			return {
-				distance: smallestCosDistance
+				similarity: largestSimilarity
+			};
+		}
+	);
+});
+
+export const calculateAllFaceSimilarity = functions.https.onCall((data, context) => {
+	if (data.vector === null || data.vector.length !== 128) {
+		throw new Error('Input vector must be of length 128');
+	}
+
+	//TODO: handle empty case here
+	return admin.firestore().collection('face_vectors').select('vector').get().then(function(res) {
+			if (res.docs === null || res.docs.length === 0) {
+				return {
+					similarity: []
+				}
+			}
+			const currentVectorMagnitude = calculateMagnitude(data.vector);
+			const similarities = res.docs.map((doc) => doc.get('vector'))
+					.filter(vector => !_.isEqual(data.vector, vector))
+					.map((vector) => (math.dot(vector, data.vector))/(currentVectorMagnitude * calculateMagnitude(vector)))
+					.map(scaleUpSimilarity);
+			return {
+				similarity: similarities
 			};
 		}
 	);

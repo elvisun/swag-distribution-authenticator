@@ -125,27 +125,29 @@ class _CollectionViewState extends State<CollectionView> {
       appBar: AppBar(
         title: Text('Take a picture'),
       ),
-      body: Center(child:Column(
-        children: <Widget>[
-          Container(
-            width: 200,
-            child: AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: CameraPreview(controller),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            Container(
+              width: 200,
+              child: AspectRatio(
+                aspectRatio: controller.value.aspectRatio,
+                child: CameraPreview(controller),
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: screenshot,
-            iconSize: 30.0,
-            icon: Icon(Icons.camera_alt),
-          ),
-          Text(listAllPictures().length.toString(),
-              style: TextStyle(color: Colors.blue)),
-          getContainer(),
-          getEmbeddingWidget(),
-        ],
+            IconButton(
+              onPressed: screenshot,
+              iconSize: 30.0,
+              icon: Icon(Icons.camera_alt),
+            ),
+            Text(listAllPictures().length.toString(),
+                style: TextStyle(color: Colors.blue)),
+            getContainer(),
+            getEmbeddingWidget(),
+          ],
+        ),
       ),
-    ),);
+    );
   }
 
   Widget getEmbeddingWidget() {
@@ -169,8 +171,8 @@ class _CollectionViewState extends State<CollectionView> {
   Future<String> getImageEmbeddingDistance() async {
     var vector = await convertToVector(_lastCroppedImg);
     print('converted vector: $vector');
-    var distance = await getClosestDistance(vector);
-    return distance.toString();
+    var distance = await getMaxSimilarity(vector);
+    return distance;
   }
 
   Container getContainer() {
