@@ -1,7 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:math';
 
-Future<String> getMaxSimilarity(List<int> array) async {
+Future<num> getMaxSimilarity(List<int> array) async {
   if (array.length != 128) {
     throw ArgumentError('vector dimension needs to be 128');
   }
@@ -12,7 +12,20 @@ Future<String> getMaxSimilarity(List<int> array) async {
   });
   print(res);
   double similarity = res['similarity'];
-  return similarity.toString();
+  return similarity;
+}
+
+String similarityToString(num x) {
+  if (0.9 <= x && x < 1) {
+    return 'Hello again!';
+  }
+  if (0.8 <= x && x < 0.9) {
+    return 'Have I seen you before? I\'m not too sure...';
+  }
+  if (0 <= x && x < 0.8) {
+    return 'Nice meeting you!';
+  }
+  return 'Nice meeting you!';
 }
 
 const testData = [

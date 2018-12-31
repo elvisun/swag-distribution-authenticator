@@ -165,14 +165,15 @@ class _CollectionViewState extends State<CollectionView> {
               if (snapshot.hasError) return Text('Error: ${snapshot.error}');
               return Text('Result: ${snapshot.data}');
           }
-        });
+        },
+    );
   }
 
   Future<String> getImageEmbeddingDistance() async {
     var vector = await convertToVector(_lastCroppedImg);
     print('converted vector: $vector');
-    var distance = await getMaxSimilarity(vector);
-    return distance;
+    var similarity = await getMaxSimilarity(vector);
+    return similarityToString(similarity);
   }
 
   Container getContainer() {
