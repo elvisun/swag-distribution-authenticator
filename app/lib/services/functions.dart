@@ -8,7 +8,7 @@ Future<int> getClosestDistance(List<int> array) async {
   var res = await CloudFunctions.instance
       .call(functionName: 'helloWorld', parameters: {
 //        'vector': array
-    'vector': testData,
+    'vector': List.of(array),
   });
   print(res);
   return res['distance'];
