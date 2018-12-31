@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:math';
 
+/// Find the maximum similarity score among all faces it has seen.
 Future<num> getMaxSimilarity(List<int> array) async {
   if (array.length != 128) {
     throw ArgumentError('vector dimension needs to be 128');
@@ -10,22 +11,19 @@ Future<num> getMaxSimilarity(List<int> array) async {
       .call(functionName: 'calculateFaceSimilarity', parameters: {
     'vector': List.of(array),
   });
-  print(res);
   double similarity = res['similarity'];
   return similarity;
 }
 
 String similarityToString(num x) {
-  if (0.9 <= x && x < 1) {
-    return 'Hello again!';
+  const _threshold = 0.94;
+  if (_threshold <= x && x < 1) {
+    return 'Hello again! (similarity: $x)';
   }
-  if (0.8 <= x && x < 0.9) {
-    return 'Have I seen you before? I\'m not too sure...';
+  if (0 <= x && x < _threshold) {
+    return 'Nice meeting you! (similarity: $x)';
   }
-  if (0 <= x && x < 0.8) {
-    return 'Nice meeting you!';
-  }
-  return 'Nice meeting you!';
+  return 'Nice meeting you! (similarity: $x)';
 }
 
 const testData = [

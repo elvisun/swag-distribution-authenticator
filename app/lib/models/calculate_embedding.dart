@@ -16,7 +16,8 @@ const _inputSize = 128;
 const _vectorCollectionName = 'face_vectors';
 const _cnnModelName = 'facenet-mobile-8bits';
 
-Future<List<int>> convertToVector(File f, {bool saveToDb = true}) async {
+/// Converts an image file into embeddings.
+Future<List<int>> convertToVector(File f) async {
   FirebaseModelInterpreter interpreter = FirebaseModelInterpreter.instance;
 
   //TODO: run this only once
@@ -35,12 +36,13 @@ Future<List<int>> convertToVector(File f, {bool saveToDb = true}) async {
           FirebaseModelDataType.BYTE,
           [1, 128]),
       _imageToByteList(image));
-  if (saveToDb) {
-    Firestore.instance.collection(_vectorCollectionName).add({
-      'vector': List.of(results),
-    });
-  }
   return results;
+}
+
+Future<void> saveVectorToDb(List<int> vector, {String eventName}) {
+  Firestore.instance.collection(_vectorCollectionName).add({
+    'vector': List.of(vector),
+  });
 }
 
 Uint8List _imageToByteList(img.Image image) {

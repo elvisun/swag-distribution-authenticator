@@ -14,13 +14,12 @@ import 'package:mlkit/mlkit.dart';
 import 'package:image/image.dart' as img;
 import 'models/calculate_embedding.dart';
 import 'services/functions.dart';
+import 'models/camera_factory.dart' as camera_factory;
 
 const preprocessedFolderName = 'preprocessed';
 
 class CollectionView extends StatefulWidget {
-  final List<CameraDescription> cameras;
-
-  CollectionView(this.cameras);
+  List<CameraDescription> cameras = camera_factory.cameras;
 
   @override
   _CollectionViewState createState() => _CollectionViewState();
@@ -48,6 +47,78 @@ class _CollectionViewState extends State<CollectionView> {
       });
     });
   }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!controller.value.isInitialized || _localDirectory == null) {
+      return Container();
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Take a picture'),
+      ),
+      body: Center(
+        child: Column(
+          children: <Widget>[
+            Container(
+              width: 200,
+              child: AspectRatio(
+                aspectRatio: controller.value.aspectRatio,
+                child: CameraPreview(controller),
+              ),
+            ),
+            IconButton(
+              onPressed: screenshot,
+              color: Colors.pink,
+              splashColor: Colors.pinkAccent,
+              iconSize: 50.0,
+              icon: Icon(Icons.camera_alt),
+            ),
+            getContainer(),
+            getEmbeddingWidget(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getEmbeddingWidget() {
+    if (_lastCroppedImg == null) return Container();
+    return FutureBuilder(
+        future: getImageEmbeddingDistance(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Text('No data');
+            case ConnectionState.active:
+            case ConnectionState.waiting:
+              return Text('Awaiting result...');
+            case ConnectionState.done:
+              if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+              return Text(snapshot.data);
+          }
+        },
+    );
+  }
+
+  Future<String> getImageEmbeddingDistance() async {
+    var vector = await convertToVector(_lastCroppedImg);
+    await saveVectorToDb(vector);
+    print('converted vector: $vector');
+    var similarity = await getMaxSimilarity(vector);
+    return similarityToString(similarity);
+  }
+
+  Container getContainer() {
+    if (_lastCroppedImg == null) return Container();
+    return Container(
+      color: Colors.grey,
+      height: 200,
+      width: 200,
+      child: Image.file(_lastCroppedImg, fit: BoxFit.scaleDown),
+    );
+  }
+
 
   void _initializePreprocessDirectory(String path) {
     if (Directory(path).existsSync()) {
@@ -96,7 +167,7 @@ class _CollectionViewState extends State<CollectionView> {
         _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
     await controller.takePicture(newPath);
     List<VisionFace> faces =
-        await FirebaseVisionFaceDetector.instance.detectFromPath(newPath);
+    await FirebaseVisionFaceDetector.instance.detectFromPath(newPath);
     _lastImg = File(newPath);
     print(newPath);
     if (faces.isEmpty) {
@@ -114,75 +185,5 @@ class _CollectionViewState extends State<CollectionView> {
         .where((f) => path_util.extension(f.path).contains('jpg'))
         .map((f) => f.path)
         .toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!controller.value.isInitialized || _localDirectory == null) {
-      return Container();
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Take a picture'),
-      ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Container(
-              width: 200,
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: CameraPreview(controller),
-              ),
-            ),
-            IconButton(
-              onPressed: screenshot,
-              iconSize: 30.0,
-              icon: Icon(Icons.camera_alt),
-            ),
-            Text(listAllPictures().length.toString(),
-                style: TextStyle(color: Colors.blue)),
-            getContainer(),
-            getEmbeddingWidget(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget getEmbeddingWidget() {
-    if (_lastCroppedImg == null) return Container();
-    return FutureBuilder(
-        future: getImageEmbeddingDistance(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return Text('No data');
-            case ConnectionState.active:
-            case ConnectionState.waiting:
-              return Text('Awaiting result...');
-            case ConnectionState.done:
-              if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-              return Text('Result: ${snapshot.data}');
-          }
-        },
-    );
-  }
-
-  Future<String> getImageEmbeddingDistance() async {
-    var vector = await convertToVector(_lastCroppedImg);
-    print('converted vector: $vector');
-    var similarity = await getMaxSimilarity(vector);
-    return similarityToString(similarity);
-  }
-
-  Container getContainer() {
-    if (_lastCroppedImg == null) return Container();
-    return Container(
-      color: Colors.grey,
-      height: 200,
-      width: 200,
-      child: Image.file(_lastCroppedImg, fit: BoxFit.scaleDown),
-    );
   }
 }

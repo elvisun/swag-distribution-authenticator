@@ -3,7 +3,7 @@ import 'models/routes.dart' as routes;
 import 'list_events.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-
+import 'collection_view.dart';
 class EventDetail extends StatelessWidget {
   EventDetail({Key key, this.document}) : super(key: key);
 
@@ -12,15 +12,17 @@ class EventDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void goToCollectionView() =>
-        Navigator.of(context).pushNamed(routes.collection);
+        Navigator.push(context,MaterialPageRoute (
+          builder: (context) => CollectionView(),
+        ),
+            );
 
     return Scaffold(
       appBar: AppBar(
         title: Text(document.data['name']),
       ),
       body: Center(
-        child: Column(
-          children: <Widget>[
+          child:
             RaisedButton(
               elevation: 4.0,
               padding: const EdgeInsets.all(8.0),
@@ -30,155 +32,7 @@ class EventDetail extends StatelessWidget {
               onPressed: goToCollectionView,
               child: const Text('Start session now'),
             ),
-            RaisedButton(
-              elevation: 4.0,
-              padding: const EdgeInsets.all(8.0),
-              textColor: Colors.white,
-              color: Colors.green,
-              splashColor: Colors.greenAccent,
-              onPressed: callFunction,
-              child: const Text('test test'),
-            ),
-          ],
         ),
-      ),
     );
   }
-}
-
-Future<void> callFunction() async {
-  var res = await CloudFunctions.instance
-      .call(functionName: 'helloWorld', parameters: {
-    'vector': [
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130,
-      127,
-      126,
-      127,
-      125,
-      122,
-      135,
-      114,
-      122,
-      131,
-      130
-    ],
-  });
-  print(res);
 }
