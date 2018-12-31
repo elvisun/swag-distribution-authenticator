@@ -6,7 +6,7 @@ Future<int> getClosestDistance(List<int> array) async {
   }
 
   var res = await CloudFunctions.instance
-      .call(functionName: 'helloWorld', parameters: {
+      .call(functionName: 'calculateFaceSimilarity', parameters: {
 //        'vector': array
     'vector': List.of(array),
   });

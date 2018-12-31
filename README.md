@@ -4,7 +4,7 @@
 
 Run firebase functions locally
 ```
-firebase functions:shell
+npm run shell
 ```
 
 Deploy

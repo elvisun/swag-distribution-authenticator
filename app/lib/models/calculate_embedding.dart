@@ -14,18 +14,19 @@ import 'dart:typed_data';
 
 const _inputSize = 128;
 const _vectorCollectionName = 'face_vectors';
+const _cnnModelName = 'facenet-mobile-8bits';
 
 Future<List<int>> convertToVector(File f, {bool saveToDb = true}) async {
   FirebaseModelInterpreter interpreter = FirebaseModelInterpreter.instance;
 
   //TODO: run this only once
   FirebaseModelManager.instance.registerCloudModelSource(
-      FirebaseCloudModelSource(modelName: "embeddings"));
+      FirebaseCloudModelSource(modelName: _cnnModelName));
 
   img.Image image = img.decodeJpg(f.readAsBytesSync());
   image = img.copyResize(image, _inputSize, _inputSize);
   var results = await interpreter.run(
-      "embeddings",
+      _cnnModelName,
       FirebaseModelInputOutputOptions(
           0,
           FirebaseModelDataType.BYTE,
