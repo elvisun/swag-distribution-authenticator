@@ -1,0 +1,25 @@
+[debug] [2018-12-31T16:03:08.524Z] ----------------------------------------------------------------------
+[debug] [2018-12-31T16:03:08.526Z] Command:       /usr/local/bin/node /usr/local/bin/firebase functions:shell
+[debug] [2018-12-31T16:03:08.526Z] CLI Version:   6.2.2
+[debug] [2018-12-31T16:03:08.526Z] Platform:      darwin
+[debug] [2018-12-31T16:03:08.526Z] Node Version:  v10.15.0
+[debug] [2018-12-31T16:03:08.527Z] Time:          Mon Dec 31 2018 11:03:08 GMT-0500 (Eastern Standard Time)
+[debug] [2018-12-31T16:03:08.527Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-12-31T16:03:08.538Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-12-31T16:03:08.538Z] > authorizing via signed-in user
+[debug] [2018-12-31T16:03:08.538Z] [iam] checking project swag-distributor for permissions ["firebase.projects.get"]
+[debug] [2018-12-31T16:03:08.540Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor:testIamPermissions  
+
+[debug] [2018-12-31T16:03:08.877Z] <<< HTTP RESPONSE 200
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-12-31T16:03:09.688Z] Fetching environment
+[debug] [2018-12-31T16:03:09.689Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor  
+ 
+[debug] [2018-12-31T16:03:09.968Z] <<< HTTP RESPONSE 200
+[debug] [2018-12-31T16:03:09.969Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/783250245080:getServerAppConfig  
+ 
+[debug] [2018-12-31T16:03:10.134Z] <<< HTTP RESPONSE 200
+[debug] [2018-12-31T16:03:10.134Z] Starting @google-cloud/functions-emulator
+[debug] [2018-12-31T16:03:11.710Z] Parsing function triggers
+[info] ✔  functions: helloWorld
