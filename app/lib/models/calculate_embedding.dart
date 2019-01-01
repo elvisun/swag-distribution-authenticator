@@ -41,7 +41,8 @@ Future<List<int>> convertToVector(File f) async {
   return results;
 }
 
-Future<void> saveVectorToDb(List<int> vector, {@required DocumentSnapshot session}) async {
+Future<void> saveVectorToDb(List<int> vector,
+    {@required DocumentSnapshot session}) async {
   await session.reference.collection(vectorCollectionName).add({
     'vector': List.of(vector),
   });

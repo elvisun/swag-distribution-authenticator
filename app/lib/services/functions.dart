@@ -5,16 +5,18 @@ import '../models/calculate_embedding.dart';
 import 'dart:math';
 
 /// Find the maximum similarity score among all faces it has seen.
-Future<num> getMaxSimilarity(List<int> array, {@required DocumentSnapshot session}) async {
+Future<num> getMaxSimilarity(List<int> array,
+    {@required DocumentSnapshot session}) async {
   if (array.length != 128) {
     throw ArgumentError('vector dimension needs to be 128');
   }
 
-  print('Comparing with collection: ${session.reference.collection(vectorCollectionName).path}');
+  print(
+      'Comparing with collection: ${session.reference.collection(vectorCollectionName).path}');
   var res = await CloudFunctions.instance
       .call(functionName: 'calculateFaceSimilarity', parameters: {
-        'sessionPath': session.reference.collection(vectorCollectionName).path,
-        'vector': List.of(array),
+    'sessionPath': session.reference.collection(vectorCollectionName).path,
+    'vector': List.of(array),
   });
 
   double similarity = res['similarity'];
