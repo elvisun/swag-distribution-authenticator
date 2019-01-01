@@ -100,7 +100,7 @@ class _CollectionViewState extends State<CollectionView> {
 
     var vector = await convertToVector(_lastCroppedImg);
     await saveVectorToDb(vector, session: widget.document);
-    maxSimilarity = await getMaxSimilarity(vector);
+    maxSimilarity = await getMaxSimilarity(vector, session: widget.document);
     setState(() {});
     return;
   }

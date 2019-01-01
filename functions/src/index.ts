@@ -22,8 +22,12 @@ export const calculateFaceSimilarity = functions.https.onCall((data, context) =>
 		throw new Error('Input vector must be of length 128');
 	}
 
+	if (data.sessionPath === null) {
+		throw new Error('sessionPath cannot be null');
+	}
+
 	//TODO: handle empty case here
-	return admin.firestore().collection('face_vectors').select('vector').get().then(function(res) {
+	return admin.firestore().collection(data.sessionPath).select('vector').get().then(function(res) {
 			if (res.docs === null || res.docs.length === 0) {
 				return {
 					similarity: 0.001  // Never seen this so similar to nothing
@@ -34,7 +38,7 @@ export const calculateFaceSimilarity = functions.https.onCall((data, context) =>
 					.filter(vector => !_.isEqual(data.vector, vector))
 					.map((vector) => (math.dot(vector, data.vector))/(currentVectorMagnitude * calculateMagnitude(vector)))
 					.map(scaleUpSimilarity)
-					.reduce((a, b) => math.max(a, b));
+					.reduce((a, b) => math.max(a, b), 0.001);
 			return {
 				similarity: largestSimilarity
 			};
@@ -47,8 +51,11 @@ export const calculateAllFaceSimilarity = functions.https.onCall((data, context)
 		throw new Error('Input vector must be of length 128');
 	}
 
-	//TODO: handle empty case here
-	return admin.firestore().collection('face_vectors').select('vector').get().then(function(res) {
+	if (data.sessionPath === null) {
+		throw new Error('sessionPath cannot be null');
+	}
+
+	return admin.firestore().collection(data.sessionPath).select('vector').get().then(function(res) {
 			if (res.docs === null || res.docs.length === 0) {
 				return {
 					similarity: []
@@ -67,4 +74,4 @@ export const calculateAllFaceSimilarity = functions.https.onCall((data, context)
 });
 
 // Test functions
-// calculateFaceSimilarity({"vector": [127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130]});
+//calculateFaceSimilarity({"sessionPath":"events/-LV5d-j1qa7A7SzSHX42/face_vectors", "vector": [127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130,  127,  126,127,  125,  122,  135,  114,  122,  131,  130]});

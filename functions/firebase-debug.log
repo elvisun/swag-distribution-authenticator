@@ -1,25 +1,29 @@
-[debug] [2018-12-31T18:24:55.934Z] ----------------------------------------------------------------------
-[debug] [2018-12-31T18:24:55.935Z] Command:       /usr/local/bin/node /usr/local/bin/firebase functions:shell
-[debug] [2018-12-31T18:24:55.936Z] CLI Version:   6.2.2
-[debug] [2018-12-31T18:24:55.936Z] Platform:      darwin
-[debug] [2018-12-31T18:24:55.936Z] Node Version:  v10.15.0
-[debug] [2018-12-31T18:24:55.937Z] Time:          Mon Dec 31 2018 13:24:55 GMT-0500 (Eastern Standard Time)
-[debug] [2018-12-31T18:24:55.937Z] ----------------------------------------------------------------------
+[debug] [2019-01-01T00:40:33.768Z] ----------------------------------------------------------------------
+[debug] [2019-01-01T00:40:33.770Z] Command:       /usr/local/bin/node /usr/local/bin/firebase functions:shell
+[debug] [2019-01-01T00:40:33.770Z] CLI Version:   6.2.2
+[debug] [2019-01-01T00:40:33.770Z] Platform:      darwin
+[debug] [2019-01-01T00:40:33.770Z] Node Version:  v10.15.0
+[debug] [2019-01-01T00:40:33.771Z] Time:          Mon Dec 31 2018 19:40:33 GMT-0500 (Eastern Standard Time)
+[debug] [2019-01-01T00:40:33.771Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2018-12-31T18:24:55.944Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2018-12-31T18:24:55.944Z] > authorizing via signed-in user
-[debug] [2018-12-31T18:24:55.945Z] [iam] checking project swag-distributor for permissions ["firebase.projects.get"]
-[debug] [2018-12-31T18:24:55.946Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor:testIamPermissions  
+[debug] [2019-01-01T00:40:33.783Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-01-01T00:40:33.784Z] > authorizing via signed-in user
+[debug] [2019-01-01T00:40:33.784Z] [iam] checking project swag-distributor for permissions ["firebase.projects.get"]
+[debug] [2019-01-01T00:40:33.786Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2019-01-01T00:40:33.786Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2019-01-01T00:40:34.036Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-01T00:40:34.065Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor:testIamPermissions  
 
-[debug] [2018-12-31T18:24:56.301Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-01T00:40:34.452Z] <<< HTTP RESPONSE 200
 [info] i  functions: Preparing to emulate functions.
-[debug] [2018-12-31T18:24:56.736Z] Fetching environment
-[debug] [2018-12-31T18:24:56.738Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor  
+[debug] [2019-01-01T00:40:35.134Z] Fetching environment
+[debug] [2019-01-01T00:40:35.135Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/swag-distributor  
  
-[debug] [2018-12-31T18:24:57.021Z] <<< HTTP RESPONSE 200
-[debug] [2018-12-31T18:24:57.022Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/783250245080:getServerAppConfig  
+[debug] [2019-01-01T00:40:35.448Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-01T00:40:35.448Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/783250245080:getServerAppConfig  
  
-[debug] [2018-12-31T18:24:57.195Z] <<< HTTP RESPONSE 200
-[debug] [2018-12-31T18:24:57.196Z] Starting @google-cloud/functions-emulator
-[debug] [2018-12-31T18:24:58.274Z] Parsing function triggers
+[debug] [2019-01-01T00:40:35.685Z] <<< HTTP RESPONSE 200
+[debug] [2019-01-01T00:40:35.685Z] Starting @google-cloud/functions-emulator
+[debug] [2019-01-01T00:40:37.251Z] Parsing function triggers
 [info] ✔  functions: calculateFaceSimilarity

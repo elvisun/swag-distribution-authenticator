@@ -14,7 +14,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 const _inputSize = 128;
-const _vectorCollectionName = 'face_vectors';
+const vectorCollectionName = 'face_vectors';
 const _cnnModelName = 'facenet-mobile-8bits';
 
 /// Converts an image file into embeddings.
@@ -42,7 +42,7 @@ Future<List<int>> convertToVector(File f) async {
 }
 
 Future<void> saveVectorToDb(List<int> vector, {@required DocumentSnapshot session}) async {
-  await session.reference.collection(_vectorCollectionName).add({
+  await session.reference.collection(vectorCollectionName).add({
     'vector': List.of(vector),
   });
 }
