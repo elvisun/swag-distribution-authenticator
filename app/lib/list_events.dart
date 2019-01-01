@@ -10,9 +10,6 @@ class ListEventWidget extends StatefulWidget {
 }
 
 class _ListEventState extends State<ListEventWidget> {
-  void _navigateToCreate() =>
-      Navigator.of(context).pushNamed(routes.listEvents);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

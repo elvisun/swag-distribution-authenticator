@@ -11,6 +11,7 @@ import 'package:mlkit/mlkit.dart';
 import 'package:image/image.dart' as img;
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:meta/meta.dart';
 
 const _inputSize = 128;
 const _vectorCollectionName = 'face_vectors';
@@ -36,11 +37,12 @@ Future<List<int>> convertToVector(File f) async {
           FirebaseModelDataType.BYTE,
           [1, 128]),
       _imageToByteList(image));
+  print('face converted into vector: $results');
   return results;
 }
 
-Future<void> saveVectorToDb(List<int> vector, {String eventName}) {
-  Firestore.instance.collection(_vectorCollectionName).add({
+Future<void> saveVectorToDb(List<int> vector, {@required DocumentSnapshot session}) async {
+  await session.reference.collection(_vectorCollectionName).add({
     'vector': List.of(vector),
   });
 }

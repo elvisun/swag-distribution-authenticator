@@ -20,6 +20,9 @@ const preprocessedFolderName = 'preprocessed';
 
 class CollectionView extends StatefulWidget {
   List<CameraDescription> cameras = camera_factory.cameras;
+  DocumentSnapshot document;
+
+  CollectionView(this.document);
 
   @override
   _CollectionViewState createState() => _CollectionViewState();
@@ -31,7 +34,8 @@ class _CollectionViewState extends State<CollectionView> {
   Directory _localDirectory;
   String _preprocessDirectoryPath;
   File _lastCroppedImg;
-  File _lastImg;
+
+  num maxSimilarity;
 
   @override
   void initState() {
@@ -68,48 +72,65 @@ class _CollectionViewState extends State<CollectionView> {
               ),
             ),
             IconButton(
-              onPressed: screenshot,
+              onPressed: _screenshotAndCompare,
               color: Colors.pink,
               splashColor: Colors.pinkAccent,
               iconSize: 50.0,
               icon: Icon(Icons.camera_alt),
             ),
-            getContainer(),
-            getEmbeddingWidget(),
+            _croppedPhotoWidget,
+            _comparisionResultWidget,
           ],
         ),
       ),
     );
   }
 
-  Widget getEmbeddingWidget() {
-    if (_lastCroppedImg == null) return Container();
-    return FutureBuilder(
-        future: getImageEmbeddingDistance(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return Text('No data');
-            case ConnectionState.active:
-            case ConnectionState.waiting:
-              return Text('Awaiting result...');
-            case ConnectionState.done:
-              if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-              return Text(snapshot.data);
-          }
-        },
-    );
-  }
+  Future<void> _screenshotAndCompare() async {
+    var newPath = path_util.join(
+        _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
+    await controller.takePicture(newPath);
+    VisionFace face = await _findLargestFace(newPath);
 
-  Future<String> getImageEmbeddingDistance() async {
+    if (face == null) {
+      setState(() {});
+      return;
+    }
+    _lastCroppedImg = _cropImage(File(newPath), face.rect);
+
     var vector = await convertToVector(_lastCroppedImg);
-    await saveVectorToDb(vector);
-    print('converted vector: $vector');
-    var similarity = await getMaxSimilarity(vector);
-    return similarityToString(similarity);
+    await saveVectorToDb(vector, session: widget.document);
+    maxSimilarity = await getMaxSimilarity(vector);
+    setState(() {});
+    return;
   }
 
-  Container getContainer() {
+  Future<VisionFace> _findLargestFace(String newPath) async {
+    List<VisionFace> faces =
+        await FirebaseVisionFaceDetector.instance.detectFromPath(newPath);
+
+    print('FOUND ${faces.length} FACES!');
+
+    if (faces.isEmpty) return null;
+
+    if (faces.length == 1) return faces.first;
+
+    return faces.reduce((a, b) => (a.rect.size > b.rect.size) ? a : b);
+  }
+
+  Widget get _comparisionResultWidget {
+    if (_lastCroppedImg == null) return Container();
+    return Text(renderMaxSimilarity());
+  }
+
+  String renderMaxSimilarity() {
+    if (maxSimilarity == null) {
+      return 'loading';
+    }
+    return similarityToString(maxSimilarity);
+  }
+
+  Container get _croppedPhotoWidget {
     if (_lastCroppedImg == null) return Container();
     return Container(
       color: Colors.grey,
@@ -119,31 +140,13 @@ class _CollectionViewState extends State<CollectionView> {
     );
   }
 
-
-  void _initializePreprocessDirectory(String path) {
-    if (Directory(path).existsSync()) {
-      return;
-    }
-    Directory(path).createSync();
-  }
-
-  void _initCamera() {
-    controller = CameraController(widget.cameras[1], ResolutionPreset.low);
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
-  }
-
   @override
   void dispose() {
     controller?.dispose();
     super.dispose();
   }
 
-  File cropImage(File f, Rect faceBoundary) {
+  File _cropImage(File f, Rect faceBoundary) {
     var basename = path_util.basename(f.path);
     img.Image image = img.decodeImage(f.readAsBytesSync()).clone();
 
@@ -162,28 +165,20 @@ class _CollectionViewState extends State<CollectionView> {
     return processedFile;
   }
 
-  Future<void> screenshot() async {
-    var newPath = path_util.join(
-        _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
-    await controller.takePicture(newPath);
-    List<VisionFace> faces =
-    await FirebaseVisionFaceDetector.instance.detectFromPath(newPath);
-    _lastImg = File(newPath);
-    print(newPath);
-    if (faces.isEmpty) {
-      print('NO FACES FOUND!');
-    } else {
-      print('FOUND ${faces.length} FACES!');
-      _lastCroppedImg = cropImage(File(newPath), faces.first.rect);
+  void _initializePreprocessDirectory(String path) {
+    if (Directory(path).existsSync()) {
+      return;
     }
-    setState(() {});
+    Directory(path).createSync();
   }
 
-  List<String> listAllPictures() {
-    return _localDirectory
-        .listSync()
-        .where((f) => path_util.extension(f.path).contains('jpg'))
-        .map((f) => f.path)
-        .toList();
+  void _initCamera() {
+    controller = CameraController(widget.cameras[1], ResolutionPreset.low);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
   }
 }

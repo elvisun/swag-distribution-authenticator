@@ -30,7 +30,6 @@ class MyApp extends StatelessWidget {
         routes.eventDetail: (BuildContext context) => EventDetail(),
         routes.createEvent: (BuildContext context) => CreateEventWidget(),
         routes.listEvents: (BuildContext context) => ListEventWidget(),
-        routes.collection: (BuildContext context) => CollectionView(),
       },
     );
   }
