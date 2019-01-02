@@ -1,8 +1,10 @@
+import 'models/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'models/routes.dart' as routes;
 import 'list_empty_state.dart';
 import 'event_detail.dart';
+import 'models/calculate_embedding.dart';
 
 class ListEventWidget extends StatefulWidget {
   @override
@@ -62,8 +64,15 @@ class _ListEventState extends State<ListEventWidget> {
             ),
             subtitle: Row(
               children: <Widget>[
-                Text(document.data['description'],
-                    style: TextStyle(color: Colors.black54))
+                FutureBuilder(
+                future: document.reference
+                    .collection(vectorCollectionName)
+                    .reference()
+                    .getDocuments(),
+                builder: (context, snapshot) => Text(
+                  '${getFaceCount(snapshot.data)} face vectors',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),),
               ],
             ),
             trailing: Icon(Icons.keyboard_arrow_right,

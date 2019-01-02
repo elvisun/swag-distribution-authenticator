@@ -6,6 +6,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'collection_view.dart';
 import 'models/calculate_embedding.dart';
 import 'dart:io';
+import 'models/utilities.dart';
 
 class EventDetail extends StatelessWidget {
   EventDetail({Key key, this.document}) : super(key: key);
@@ -47,7 +48,7 @@ class EventDetail extends StatelessWidget {
                 color: Colors.pink,
                 splashColor: Colors.pinkAccent,
                 onPressed: goToCollectionView,
-                child: const Text('Start session now'),
+                child: const Text('Start now!'),
               ),
             ),
             Padding(padding: EdgeInsets.all(10)),
@@ -58,7 +59,7 @@ class EventDetail extends StatelessWidget {
                   .getDocuments(),
               builder: (context, snapshot) => Text(
                     'Total face vectors in database: '
-                        '${_getFaceCount(snapshot)}',
+                        '${getFaceCount(snapshot.data)}',
                     style: TextStyle(fontSize: 16, color: Colors.black54),
                   ),
             ),
@@ -67,9 +68,4 @@ class EventDetail extends StatelessWidget {
       ),
     );
   }
-}
-
-String _getFaceCount(AsyncSnapshot snapshot) {
-  return ((snapshot.data) as QuerySnapshot)?.documents?.length.toString() ??
-      '0';
 }

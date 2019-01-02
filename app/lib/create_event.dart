@@ -10,14 +10,12 @@ class CreateEventWidget extends StatefulWidget {
 
 class _CreateEventState extends State<CreateEventWidget> {
   final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _addToDb() async {
     if (!_formKey.currentState.validate()) return;
     await Firestore.instance.collection('events').add({
       'name': _nameController.text,
-      'description': _descriptionController.text,
     });
     Navigator.pop(context);
   }
@@ -41,8 +39,14 @@ class _CreateEventState extends State<CreateEventWidget> {
       ),
       body: Form(
         key: _formKey,
-        child: Column(
+        child: ListView(
           children: <Widget>[
+            Padding(padding: EdgeInsets.all(20)),
+            Image.asset(
+              'assets/oct.png',
+              width: 250,
+              height: 250,
+            ),
             Padding(padding: EdgeInsets.all(20)),
             ListTile(
               leading: const Icon(Icons.event_note),
@@ -55,16 +59,6 @@ class _CreateEventState extends State<CreateEventWidget> {
               ),
             ),
             Padding(padding: EdgeInsets.all(20)),
-            ListTile(
-              leading: const Icon(Icons.note_add),
-              title: TextFormField(
-                validator: _isNotEmptyValidator,
-                controller: _descriptionController,
-                decoration: InputDecoration(
-                  hintText: "description",
-                ),
-              ),
-            ),
           ],
         ),
       ),

@@ -80,7 +80,7 @@ class _CollectionViewState extends State<CollectionView> {
                         },
                         color: Colors.black,
                         splashColor: Colors.black38,
-                        iconSize: 100.0,
+                        iconSize: 110.0,
                         icon: Icon(Icons.camera_alt),
                       ),
                     ],
@@ -183,7 +183,7 @@ class _CollectionViewState extends State<CollectionView> {
     var newPath = path_util.join(
         _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
     await controller.takePicture(newPath);
-    loadingTextObservable.value = 'finding face...';
+    loadingTextObservable.value = 'finding faces...';
     VisionFace face = await _findLargestFace(newPath);
 
     if (face == null) {
