@@ -57,7 +57,8 @@ class EventDetail extends StatelessWidget {
                   .reference()
                   .getDocuments(),
               builder: (context, snapshot) => Text(
-                    'Total faces in database: ${_getFaceCount(snapshot)}',
+                    'Total face vectors in database: '
+                        '${_getFaceCount(snapshot)}',
                     style: TextStyle(fontSize: 16, color: Colors.black54),
                   ),
             ),

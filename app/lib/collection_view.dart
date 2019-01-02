@@ -60,9 +60,10 @@ class _CollectionViewState extends State<CollectionView> {
       return Container();
     }
     return Scaffold(
-        body: ValueListenableBuilder(
-          valueListenable: loadingTextObservable,
-          builder: (context, value, snapshot) => Stack(children: <Widget>[
+      body: ValueListenableBuilder(
+        valueListenable: loadingTextObservable,
+        builder: (context, value, snapshot) => Stack(
+              children: <Widget>[
                 Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -97,24 +98,28 @@ class _CollectionViewState extends State<CollectionView> {
                             dismissible: false, color: Colors.black),
                       ),
                       Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
+                          child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
                           CircularProgressIndicator(),
                           Padding(padding: EdgeInsets.all(30)),
-                          Text(loadingTextObservable.value, style: TextStyle(
-                              fontSize: 40, fontWeight: FontWeight.bold,
-                              color: Colors.white
-                          ),),
-                        ],)
-                      ),
+                          Text(
+                            loadingTextObservable.value,
+                            style: TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ],
+                      )),
                     ],
                   );
-                })
-
-              ]),
-        ));
+                }),
+              ],
+            ),
+      ),
+    );
   }
 
   void _showDialog({@required bool faceFound}) {
@@ -128,7 +133,7 @@ class _CollectionViewState extends State<CollectionView> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 _croppedPhotoWidget,
-                Padding(padding: EdgeInsets.all(5)),
+                Padding(padding: EdgeInsets.all(10)),
                 _comparisionResultWidget,
                 Padding(padding: EdgeInsets.all(5)),
                 _comparisionResultDebugWidget
@@ -154,6 +159,11 @@ class _CollectionViewState extends State<CollectionView> {
           // return object of type Dialog
           return AlertDialog(
             title: Text("Opps, no faces found!"),
+            content: Image.asset(
+              'assets/empty.png',
+              width: 250,
+              height: 250,
+            ),
             actions: <Widget>[
               FlatButton(
                 child: Text("Close"),
@@ -216,22 +226,28 @@ class _CollectionViewState extends State<CollectionView> {
 
   Widget get _comparisionResultWidget {
     if (_lastCroppedImg == null) return Container();
-    return Text(renderMaxSimilarity(), style: TextStyle(fontSize: 18),);
+    return Text(
+      _renderMaxSimilarity(),
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
   }
 
   Widget get _comparisionResultDebugWidget {
     if (_lastCroppedImg == null) return Container();
-    return Text(debugMaxSimilarity(), style: TextStyle(fontSize: 18),);
+    return Text(
+      _debugMaxSimilarity(),
+      style: TextStyle(fontSize: 16, color: Colors.black45),
+    );
   }
 
-  String renderMaxSimilarity() {
+  String _renderMaxSimilarity() {
     if (maxSimilarity == null) {
       return 'loading';
     }
     return similarityToString(maxSimilarity);
   }
 
-  String debugMaxSimilarity() {
+  String _debugMaxSimilarity() {
     if (maxSimilarity == null) {
       return 'loading';
     }
@@ -267,7 +283,7 @@ class _CollectionViewState extends State<CollectionView> {
         faceBoundary.width.round());
     var path = path_util.join(_preprocessDirectoryPath, basename);
     var processedFile = File(path);
-    processedFile.writeAsBytesSync(img.encodeJpg(newImg));
+    processedFile.writeAsBytesSync(img.encodeJpg(newImg), flush: true);
     return processedFile;
   }
 
