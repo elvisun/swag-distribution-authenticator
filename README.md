@@ -25,3 +25,7 @@ Format Dart directory
 ```
 dartfmt . -w --fix
 ```
+## Future area of work
+* Integrate with a survey feature, and take a picture when they do the survey, so it doesn't look too creepy
+* Add login and authentication
+* Better UI?
