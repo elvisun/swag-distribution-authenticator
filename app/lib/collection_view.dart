@@ -37,6 +37,8 @@ class _CollectionViewState extends State<CollectionView> {
 
   num maxSimilarity;
 
+  final loadingTextObservable = ValueNotifier('');
+
   @override
   void initState() {
     super.initState();
@@ -58,50 +60,144 @@ class _CollectionViewState extends State<CollectionView> {
       return Container();
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Take a picture'),
-      ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Container(
-              width: 200,
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: CameraPreview(controller),
-              ),
-            ),
-            IconButton(
-              onPressed: _screenshotAndCompare,
-              color: Colors.pink,
-              splashColor: Colors.pinkAccent,
-              iconSize: 50.0,
-              icon: Icon(Icons.camera_alt),
-            ),
-            _croppedPhotoWidget,
-            _comparisionResultWidget,
-          ],
-        ),
-      ),
-    );
+        body: ValueListenableBuilder(
+          valueListenable: loadingTextObservable,
+          builder: (context, value, snapshot) => Stack(children: <Widget>[
+                Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: AspectRatio(
+                          aspectRatio: controller.value.aspectRatio,
+                          child: CameraPreview(controller),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _screenshotAndCompare(loadingTextObservable);
+                        },
+                        color: Colors.black,
+                        splashColor: Colors.black38,
+                        iconSize: 100.0,
+                        icon: Icon(Icons.camera_alt),
+                      ),
+                    ],
+                  ),
+                ),
+                Builder(builder: (context) {
+                  if (loadingTextObservable.value == '') {
+                    return Container();
+                  }
+                  return Stack(
+                    children: [
+                      Opacity(
+                        opacity: 0.9,
+                        child: const ModalBarrier(
+                            dismissible: false, color: Colors.black),
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                          CircularProgressIndicator(),
+                          Padding(padding: EdgeInsets.all(30)),
+                          Text(loadingTextObservable.value, style: TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.bold,
+                              color: Colors.white
+                          ),),
+                        ],)
+                      ),
+                    ],
+                  );
+                })
+
+              ]),
+        ));
   }
 
-  Future<void> _screenshotAndCompare() async {
+  void _showDialog({@required bool faceFound}) {
+    if (faceFound) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                _croppedPhotoWidget,
+                Padding(padding: EdgeInsets.all(5)),
+                _comparisionResultWidget,
+                Padding(padding: EdgeInsets.all(5)),
+                _comparisionResultDebugWidget
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    if (!faceFound) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: Text("Opps, no faces found!"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _screenshotAndCompare(
+      ValueNotifier loadingTextObservable) async {
     var newPath = path_util.join(
         _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
     await controller.takePicture(newPath);
+    loadingTextObservable.value = 'finding face...';
     VisionFace face = await _findLargestFace(newPath);
 
     if (face == null) {
-      setState(() {});
+      setState(() {
+        loadingTextObservable.value = '';
+        _showDialog(faceFound: false);
+      });
       return;
     }
-    _lastCroppedImg = _cropImage(File(newPath), face.rect);
 
+    loadingTextObservable.value = 'converting face to vector...';
+    _lastCroppedImg = _cropImage(File(newPath), face.rect);
     var vector = await convertToVector(_lastCroppedImg);
+
+    loadingTextObservable.value = 'saving vector to database...';
     await saveVectorToDb(vector, session: widget.document);
+
+    loadingTextObservable.value = 'calculating similarity...';
     maxSimilarity = await getMaxSimilarity(vector, session: widget.document);
-    setState(() {});
+
+    setState(() {
+      loadingTextObservable.value = '';
+      _showDialog(faceFound: true);
+    });
     return;
   }
 
@@ -120,7 +216,12 @@ class _CollectionViewState extends State<CollectionView> {
 
   Widget get _comparisionResultWidget {
     if (_lastCroppedImg == null) return Container();
-    return Text(renderMaxSimilarity());
+    return Text(renderMaxSimilarity(), style: TextStyle(fontSize: 18),);
+  }
+
+  Widget get _comparisionResultDebugWidget {
+    if (_lastCroppedImg == null) return Container();
+    return Text(debugMaxSimilarity(), style: TextStyle(fontSize: 18),);
   }
 
   String renderMaxSimilarity() {
@@ -130,12 +231,17 @@ class _CollectionViewState extends State<CollectionView> {
     return similarityToString(maxSimilarity);
   }
 
+  String debugMaxSimilarity() {
+    if (maxSimilarity == null) {
+      return 'loading';
+    }
+    return similarityToDebugString(maxSimilarity);
+  }
+
   Container get _croppedPhotoWidget {
     if (_lastCroppedImg == null) return Container();
     return Container(
       color: Colors.grey,
-      height: 200,
-      width: 200,
       child: Image.file(_lastCroppedImg, fit: BoxFit.scaleDown),
     );
   }

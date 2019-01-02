@@ -30,15 +30,12 @@ class EventDetail extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-        DecoratedBox(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-            image: AssetImage('assets/rocket.png'),
-        // ...
-      ),
-      // ...
-    ),
-    ),
+            Image.asset(
+              'assets/rocket.png',
+              width: 250,
+              height: 250,
+            ),
+            Padding(padding: EdgeInsets.all(30)),
             SizedBox(
               width: 200,
               child: RaisedButton(
@@ -55,14 +52,15 @@ class EventDetail extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.all(10)),
             FutureBuilder(
-                future: document.reference
-                    .collection(vectorCollectionName)
-                    .reference()
-                    .getDocuments(),
-                builder: (context, snapshot) => Text(
-                      'Total faces in database: ${_getFaceCount(snapshot)}',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    )),
+              future: document.reference
+                  .collection(vectorCollectionName)
+                  .reference()
+                  .getDocuments(),
+              builder: (context, snapshot) => Text(
+                    'Total faces in database: ${_getFaceCount(snapshot)}',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+            ),
           ],
         ),
       ),
@@ -71,5 +69,6 @@ class EventDetail extends StatelessWidget {
 }
 
 String _getFaceCount(AsyncSnapshot snapshot) {
-  return ((snapshot.data) as QuerySnapshot)?.documents?.length.toString() ?? '0';
+  return ((snapshot.data) as QuerySnapshot)?.documents?.length.toString() ??
+      '0';
 }

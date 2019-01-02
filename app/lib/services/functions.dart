@@ -24,14 +24,21 @@ Future<num> getMaxSimilarity(List<int> array,
 }
 
 String similarityToString(num x) {
-  const _threshold = 0.94;
-  if (_threshold <= x && x < 1) {
-    return 'Hello again! (similarity: $x)';
+  const secondTimeGreeting = 'I\'ve seen you before, hello again!';
+  const firstTimeGreeting = 'Nice meeting you!';
+  const threshold = 0.94;
+
+  if (threshold <= x && x < 1) {
+    return secondTimeGreeting;
   }
-  if (0 <= x && x < _threshold) {
-    return 'Nice meeting you! (similarity: $x)';
+  if (0 <= x && x < threshold) {
+    return firstTimeGreeting;
   }
-  return 'Nice meeting you! (similarity: $x)';
+  return firstTimeGreeting;
+}
+
+String similarityToDebugString(num x) {
+  return 'similarity: $x';
 }
 
 const testData = [
