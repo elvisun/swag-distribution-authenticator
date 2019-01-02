@@ -15,6 +15,7 @@ import 'package:image/image.dart' as img;
 import 'models/calculate_embedding.dart';
 import 'services/functions.dart';
 import 'models/camera_factory.dart' as camera_factory;
+import 'package:flutter/foundation.dart' show compute;
 
 const preprocessedFolderName = 'preprocessed';
 
@@ -183,7 +184,9 @@ class _CollectionViewState extends State<CollectionView> {
     var newPath = path_util.join(
         _localDirectory.path, '${_clock.now().toIso8601String()}.jpg');
     await controller.takePicture(newPath);
-    loadingTextObservable.value = 'finding faces...';
+    setState(() {
+      loadingTextObservable.value = 'finding faces...';
+    });
     VisionFace face = await _findLargestFace(newPath);
 
     if (face == null) {
@@ -194,14 +197,22 @@ class _CollectionViewState extends State<CollectionView> {
       return;
     }
 
-    loadingTextObservable.value = 'converting face to vector...';
+    setState(() {
+      loadingTextObservable.value = 'converting face to vector...';
+    });
+
+    //TODO: send this to a background thread so it doesn't block UI.
     _lastCroppedImg = _cropImage(File(newPath), face.rect);
     var vector = await convertToVector(_lastCroppedImg);
 
-    loadingTextObservable.value = 'saving vector to database...';
+    setState(() {
+      loadingTextObservable.value = 'saving vector to database...';
+    });
     await saveVectorToDb(vector, session: widget.document);
 
-    loadingTextObservable.value = 'calculating similarity...';
+    setState(() {
+      loadingTextObservable.value = 'calculating similarity...';
+    });
     maxSimilarity = await getMaxSimilarity(vector, session: widget.document);
 
     setState(() {

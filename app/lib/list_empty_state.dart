@@ -9,7 +9,7 @@ class ListEmptyState extends StatelessWidget {
 
     return Center(
       child: MaterialButton(
-        color: Colors.blueAccent,
+        color: Colors.pink,
         textColor: Colors.white,
         onPressed: _navigateToCreate,
         child: Text("Create new event"),
