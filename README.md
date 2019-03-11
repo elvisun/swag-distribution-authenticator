@@ -10,12 +10,11 @@ This app will take a picture of you and remember you for the rest of the event.
 ## Demo
 Take a picture of someone we've never seen before (Face vector not in database)
 
-![Alt Text](demo1.gif)
+<img src="demo1.gif" width="250">
 
+Take a picture of someone we've seen already
 
-Take a picture of someone we seen
-
-![Alt Text](demo2.gif)
+<img src="demo2.gif" width="250">
 
 ## Design 
 ![alt text](./diagram.png)
